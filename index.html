@@ -719,7 +719,27 @@ function loadWithMigration(keys, fallback) {
   return fallback;
 }
 
-var S = loadWithMigration(['crw_tasks','crw_balik4','crw_balik3','crw_balik'], JSON.parse(JSON.stringify(DEF)));
+function recoverTasks() {
+  var explicit = ['crw_tasks','crw_balik4','crw_balik3','crw_balik2','crw_balik'];
+  for (var i = 0; i < explicit.length; i++) {
+    try { var v = localStorage.getItem(explicit[i]); if (v) { var p = JSON.parse(v); if (p && p.bd) return p; } } catch(e) {}
+  }
+  // Fallback: scan for any older task-data key (crw_balik*) that holds tasks
+  try {
+    for (var j = 0; j < localStorage.length; j++) {
+      var k = localStorage.key(j);
+      if (k && k.indexOf('crw_balik') === 0 && k.toLowerCase().indexOf('name') === -1) {
+        try {
+          var parsed = JSON.parse(localStorage.getItem(k));
+          if (parsed && parsed.bd) return parsed;
+        } catch(e) {}
+      }
+    }
+  } catch(e) {}
+  return JSON.parse(JSON.stringify(DEF));
+}
+
+var S = recoverTasks();
 
 function save() {
   try { localStorage.setItem(TASK_KEY, JSON.stringify(S)); } catch(e) {}
