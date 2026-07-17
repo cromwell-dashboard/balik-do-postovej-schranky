@@ -182,6 +182,23 @@ h1,h2,.ch h2,.dept-name{font-family:'Bricolage Grotesque',Arial,sans-serif;}
 .ov-bar{flex:1;height:9px;background:#E7E9EF;border-radius:6px;overflow:hidden;}
 .ov-fill{height:100%;background:#2563EB;border-radius:6px;transition:width .3s;width:0;}
 .ov-pct{font-size:13px;font-weight:800;color:#2563EB;font-family:'Bricolage Grotesque',Arial,sans-serif;white-space:nowrap;}
+.ov-tools{display:flex;gap:7px;flex-wrap:wrap;width:100%;margin-top:4px;padding-top:12px;border-top:1px dashed #E7E9EF;}
+.ov-btn{font-size:12px;font-weight:600;padding:6px 12px;border-radius:7px;border:1px solid #E7E9EF;background:#fff;color:#334155;cursor:pointer;font-family:'Instrument Sans',Arial,sans-serif;display:inline-flex;align-items:center;gap:5px;}
+.ov-btn:hover{border-color:#2563EB;color:#2563EB;background:#EFF4FF;}
+.ov-tools-note{font-size:11px;color:#94A3B8;margin-left:auto;align-self:center;}
+
+/* PEOPLE ROSTER (číselník zodpovedných) */
+.people-bar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:16px;padding:12px 15px;background:#fff;border:1px solid #E7E9EF;border-radius:12px;}
+.people-bar-lbl{font-size:12px;font-weight:700;color:#0F1B3D;white-space:nowrap;}
+.people-chips{display:flex;flex-wrap:wrap;gap:6px;}
+.people-empty{font-size:12px;color:#94A3B8;font-style:italic;}
+.pchip{display:inline-flex;align-items:center;gap:5px;background:#EFF4FF;border:1px solid #DBEAFE;color:#2563EB;font-size:12px;font-weight:600;padding:3px 6px 3px 11px;border-radius:20px;}
+.pchip button{border:none;background:transparent;color:#93B4F5;cursor:pointer;font-size:12px;line-height:1;padding:0 2px;font-weight:700;}
+.pchip button:hover{color:#DC2626;}
+.person-add-inp{margin-left:auto;padding:6px 11px;border:1px solid #E7E9EF;border-radius:7px;font-size:12.5px;font-family:'Instrument Sans',Arial,sans-serif;width:170px;color:#0F1B3D;}
+.person-add-inp:focus{outline:2px solid #2563EB;border-color:#2563EB;}
+.btn-add-person{padding:6px 13px;background:#2563EB;color:#fff;border:none;border-radius:7px;font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:'Instrument Sans',Arial,sans-serif;}
+.btn-add-person:hover{background:#1D4FD8;}
 
 /* DEPARTMENT BLOCKS (row/table layout) */
 .dept-grid{display:flex;flex-direction:column;gap:16px;}
@@ -595,6 +612,12 @@ h1,h2,.ch h2,.dept-name{font-family:'Bricolage Grotesque',Arial,sans-serif;}
       <div class="ov-stat"><div class="ov-v prog" id="ov-prog">0</div><div class="ov-l">v procese</div></div>
       <div class="ov-stat"><div class="ov-v done" id="ov-done">0</div><div class="ov-l">vyriešené</div></div>
       <div class="ov-progress"><div class="ov-bar"><div class="ov-fill" id="ov-fill"></div></div><div class="ov-pct" id="ov-pct">0 %</div></div>
+      <div class="ov-tools">
+        <button class="ov-btn" onclick="exportData()">⬇ Uložiť zálohu záznamov</button>
+        <button class="ov-btn" onclick="document.getElementById('import-file').click()">⬆ Obnoviť zo zálohy</button>
+        <input type="file" id="import-file" accept="application/json,.json" style="display:none;" onchange="importData(this)">
+        <span class="ov-tools-note">Záznamy sa ukladajú v tvojom prehliadači. Pred výmenou súboru na GitHube si urob zálohu.</span>
+      </div>
     </div>
     <datalist id="people-list">
       <option value="Miroslava Štalmašková"></option>
@@ -603,6 +626,12 @@ h1,h2,.ch h2,.dept-name{font-family:'Bricolage Grotesque',Arial,sans-serif;}
       <option value="Martin Jalovecký"></option>
       <option value="Linda Husarovičová"></option>
     </datalist>
+    <div class="people-bar">
+      <span class="people-bar-lbl">👤 Číselník zodpovedných:</span>
+      <div class="people-chips" id="people-chips"></div>
+      <input class="person-add-inp" id="person-add" placeholder="Nový zodpovedný..." onkeydown="if(event.key==='Enter'){event.preventDefault();addPersonFromInput();}">
+      <button class="btn-add-person" onclick="addPersonFromInput()">+ Pridať osobu</button>
+    </div>
     <div class="dept-grid">
     <div class="dept" style="--accent:#2563EB;--accent-soft:#DBEAFE;"><div class="dept-hdr"><div class="dept-name" id="name-bd" contenteditable="true" onblur="saveName('bd',this)" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}">Business Development</div><span class="dept-name-edit">✎ upraviteľné</span><div class="dept-count" id="count-bd">0/0</div></div><div class="task-table" id="tasks-bd"></div><div class="add-row"><input class="add-inp" id="input-bd" placeholder="Pridať úlohu..." onkeydown="if(event.key==='Enter')addTask('bd')"><button class="btn-add" onclick="addTask('bd')">+ Pridať</button></div></div>
     <div class="dept" style="--accent:#0D9488;--accent-soft:#CCFBF1;"><div class="dept-hdr"><div class="dept-name" id="name-ob" contenteditable="true" onblur="saveName('ob',this)" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}">Obchod – New Business</div><span class="dept-name-edit">✎ upraviteľné</span><div class="dept-count" id="count-ob">0/0</div></div><div class="task-table" id="tasks-ob"></div><div class="add-row"><input class="add-inp" id="input-ob" placeholder="Pridať úlohu..." onkeydown="if(event.key==='Enter')addTask('ob')"><button class="btn-add" onclick="addTask('ob')">+ Pridať</button></div></div>
@@ -675,30 +704,39 @@ var DEF = {
 
 var DEPTS = ['bd','ob','it','ops','mkt'];
 
-var S;
-try {
-  var saved = localStorage.getItem('crw_balik4');
-  S = saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(DEF));
-} catch(e) {
-  S = JSON.parse(JSON.stringify(DEF));
+// Stable storage keys (NEVER change these again) + migration from older keys
+var TASK_KEY = 'crw_tasks';
+var NAME_KEY = 'crw_names';
+var EDIT_KEY = 'crw_edit';
+
+function loadWithMigration(keys, fallback) {
+  for (var i = 0; i < keys.length; i++) {
+    try {
+      var v = localStorage.getItem(keys[i]);
+      if (v) { return JSON.parse(v); }
+    } catch(e) {}
+  }
+  return fallback;
 }
 
+var S = loadWithMigration(['crw_tasks','crw_balik4','crw_balik3','crw_balik'], JSON.parse(JSON.stringify(DEF)));
+
 function save() {
-  try { localStorage.setItem('crw_balik4', JSON.stringify(S)); } catch(e) {}
+  try { localStorage.setItem(TASK_KEY, JSON.stringify(S)); } catch(e) {}
 }
 
 var DEFNAMES = {bd:'Business Development', ob:'Obchod – New Business', it:'IT – Nemesis', ops:'Operations', mkt:'Marketing'};
-var SNAMES;
-try {
-  var savedN = localStorage.getItem('crw_names4');
-  SNAMES = savedN ? JSON.parse(savedN) : JSON.parse(JSON.stringify(DEFNAMES));
-} catch(e) { SNAMES = JSON.parse(JSON.stringify(DEFNAMES)); }
+var SNAMES = loadWithMigration(['crw_names','crw_names4'], JSON.parse(JSON.stringify(DEFNAMES)));
+
+function saveNames() {
+  try { localStorage.setItem(NAME_KEY, JSON.stringify(SNAMES)); } catch(e) {}
+}
 
 function saveName(d, el) {
   var v = el.innerText.trim();
   if (!v) { v = DEFNAMES[d]; el.innerText = v; }
   SNAMES[d] = v;
-  try { localStorage.setItem('crw_names4', JSON.stringify(SNAMES)); } catch(e) {}
+  saveNames();
 }
 
 function applyNames() {
@@ -706,6 +744,76 @@ function applyNames() {
     var el = document.getElementById('name-' + d);
     if (el && SNAMES[d]) el.innerText = SNAMES[d];
   });
+}
+
+// ---- Roster of responsible people (číselník) ----
+var PEOPLE_KEY = 'crw_people';
+var DEFPEOPLE = ['Miroslava Štalmašková','Michal Švec','Jozef Hianik','Martin Jalovecký','Linda Husarovičová'];
+var PEOPLE = loadWithMigration(['crw_people'], DEFPEOPLE.slice());
+
+function savePeople() {
+  try { localStorage.setItem(PEOPLE_KEY, JSON.stringify(PEOPLE)); } catch(e) {}
+}
+
+function addPerson(name) {
+  name = (name || '').trim();
+  if (!name) return false;
+  var exists = PEOPLE.some(function(p) { return p.toLowerCase() === name.toLowerCase(); });
+  if (exists) return false;
+  PEOPLE.push(name);
+  PEOPLE.sort(function(a, b) { return a.localeCompare(b, 'sk'); });
+  savePeople();
+  renderPeopleList();
+  return true;
+}
+
+function removePerson(name) {
+  PEOPLE = PEOPLE.filter(function(p) { return p !== name; });
+  savePeople();
+  renderPeopleList();
+}
+
+function addPersonFromInput() {
+  var inp = document.getElementById('person-add');
+  if (!inp) return;
+  if (addPerson(inp.value)) { inp.value = ''; }
+  else { inp.value = ''; }
+  inp.focus();
+}
+
+function renderPeopleList() {
+  var dl = document.getElementById('people-list');
+  if (dl) {
+    dl.innerHTML = '';
+    PEOPLE.forEach(function(p) {
+      var o = document.createElement('option');
+      o.value = p;
+      dl.appendChild(o);
+    });
+  }
+  var chips = document.getElementById('people-chips');
+  if (chips) {
+    chips.innerHTML = '';
+    if (!PEOPLE.length) {
+      var empty = document.createElement('span');
+      empty.className = 'people-empty';
+      empty.textContent = 'Zatiaľ žiadni zodpovední';
+      chips.appendChild(empty);
+    }
+    PEOPLE.forEach(function(p) {
+      var chip = document.createElement('span');
+      chip.className = 'pchip';
+      var label = document.createElement('span');
+      label.textContent = p;
+      var btn = document.createElement('button');
+      btn.innerHTML = '&#10005;';
+      btn.title = 'Odobrať z číselníka';
+      btn.onclick = function() { removePerson(p); };
+      chip.appendChild(label);
+      chip.appendChild(btn);
+      chips.appendChild(chip);
+    });
+  }
 }
 
 function escHtml(t) {
@@ -782,8 +890,14 @@ function renderDept(d) {
       whoInput.placeholder = 'Zodpovedný...';
       whoInput.value = t.who || '';
       whoInput.title = 'Zodpovedná osoba';
-      whoInput.onchange = function() { S[d][idx].who = this.value.trim(); save(); };
-      whoInput.onblur = function() { S[d][idx].who = this.value.trim(); save(); };
+      var commitWho = function(inputEl) {
+        var v = inputEl.value.trim();
+        S[d][idx].who = v;
+        save();
+        if (v) addPerson(v);
+      };
+      whoInput.onchange = function() { commitWho(this); };
+      whoInput.onblur = function() { commitWho(this); };
       who.appendChild(whoIc);
       who.appendChild(whoInput);
 
@@ -864,13 +978,16 @@ function updateOverview() {
 
 function renderAll() {
   applyNames();
+  renderPeopleList();
   DEPTS.forEach(renderDept);
 }
 
+var editStore = {};
+var editEls = [];
+
 function initEditable() {
-  var store = {};
-  try { store = JSON.parse(localStorage.getItem('crw_edit4') || '{}'); } catch(e) {}
-  var persist = function(){ try { localStorage.setItem('crw_edit4', JSON.stringify(store)); } catch(e) {} };
+  editStore = loadWithMigration(['crw_edit','crw_edit4'], {});
+  editEls = [];
   var configs = [
     {card:'produkt', sel:'.itbl td'},
     {card:'komu', sel:'.seg h3, .seg .seg-sub, .seg p, .stitle, .ccat h4, .ccat li, .cb > p, .ftbl td'},
@@ -882,12 +999,60 @@ function initEditable() {
     var els = root.querySelectorAll(cfg.sel);
     Array.prototype.forEach.call(els, function(el, i) {
       var k = cfg.card + '_' + i;
-      if (store[k] != null) el.innerHTML = store[k];
       el.setAttribute('contenteditable', 'true');
       el.classList.add('editable');
-      el.addEventListener('blur', function() { store[k] = el.innerHTML; persist(); });
+      el.addEventListener('blur', function() { editStore[k] = el.innerHTML; saveEdits(); });
+      editEls.push({el: el, key: k});
     });
   });
+  applyEdits();
+  saveEdits();
+}
+
+function applyEdits() {
+  editEls.forEach(function(o) {
+    if (editStore[o.key] != null) o.el.innerHTML = editStore[o.key];
+  });
+}
+
+function saveEdits() {
+  try { localStorage.setItem(EDIT_KEY, JSON.stringify(editStore)); } catch(e) {}
+}
+
+function exportData() {
+  var data = {tasks: S, names: SNAMES, edit: editStore, people: PEOPLE, exported: new Date().toISOString()};
+  var blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'balik-zaznamy-zaloha.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function importData(input) {
+  var file = input.files && input.files[0];
+  if (!file) return;
+  var r = new FileReader();
+  r.onload = function() {
+    try {
+      var d = JSON.parse(r.result);
+      if (d.tasks) { S = d.tasks; save(); }
+      if (d.names) { SNAMES = d.names; saveNames(); }
+      if (d.edit) { editStore = d.edit; saveEdits(); }
+      if (d.people) { PEOPLE = d.people; savePeople(); }
+      applyNames();
+      renderAll();
+      applyEdits();
+      alert('Záznamy boli úspešne obnovené zo zálohy.');
+    } catch(e) {
+      alert('Súbor sa nepodarilo načítať – skontrolujte, že ide o zálohu (.json).');
+    }
+    input.value = '';
+  };
+  r.readAsText(file);
 }
 
 function addTask(dept) {
@@ -905,11 +1070,13 @@ function addTask(dept) {
 document.addEventListener('DOMContentLoaded', function() {
   renderAll();
   initEditable();
+  save(); saveNames(); savePeople();
 });
 
 if (document.readyState !== 'loading') {
   renderAll();
   initEditable();
+  save(); saveNames(); savePeople();
 }
 </script>
 
